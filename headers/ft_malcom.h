@@ -9,6 +9,8 @@
 #include <ctype.h>
 #include "./AINSI.h"
 
+#define debug true
+
 typedef struct s_machine
 {
 	bool	is_target;
