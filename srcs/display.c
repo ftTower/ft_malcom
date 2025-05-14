@@ -1,8 +1,10 @@
 #include "../headers/ft_malcom.h"
 
 void	display_machine(t_machine *machine) {
-	if (!machine)
+	if (!machine) {
 		LOG_ERROR("No Machine to print, aborted for safety reason");
+		return ;
+	}
 	else if (!machine->is_target) 
 		printf("\n\t%s SOURCE %s : \n", GREEN, RESET);
 	else
