@@ -2,7 +2,7 @@
 #include "../headers/ft_malcom.h"
 
 int		main(int argc, char **argv) {
-	t_malcom *malcolm;
+	t_malcolm *malcolm;
 	
 	if (argc != 5)
 		LOG_ERROR("./ft_malcom <source ip> <source mac adress> <target ip> <target mac address>");
@@ -13,5 +13,5 @@ int		main(int argc, char **argv) {
 		return (1);
 	}
 	
-	return (0);
+	return (safe_exit(malcolm), 0);
 }

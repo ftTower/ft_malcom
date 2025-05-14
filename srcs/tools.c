@@ -1,5 +1,18 @@
 #include "../headers/ft_malcom.h"
 
+void	safe_exit(t_malcolm *malcolm) {
+	if (malcolm) {
+		if (malcolm->source)
+			free(malcolm->source);
+		if (malcolm->target)
+			free(malcolm->target);
+		free(malcolm);
+		if (debug)
+			LOG_DEBUG("Malcolm is freed ! bye bye..");
+	}
+	exit(0);
+}
+
 void	err(char *err)
 {
 	if (err)

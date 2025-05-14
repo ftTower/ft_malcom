@@ -4,7 +4,7 @@ t_machine *machine_constructor(char *ip_str, char *mac_adress, bool is_target) {
 	t_machine *machine;
 	
 	//!MALLOC MACHINE
-	machine = malloc(sizeof(machine));
+	machine = malloc(sizeof(t_machine));
 	if (!machine) {
 		LOG_ERROR("Failed to malloc a machine");
 		return (NULL);
@@ -24,12 +24,12 @@ t_machine *machine_constructor(char *ip_str, char *mac_adress, bool is_target) {
 	return (machine);
 }
 
-t_malcom *malcolm_constructor(char **argv) {
+t_malcolm *malcolm_constructor(char **argv) {
 	
-	t_malcom *malcolm;
+	t_malcolm *malcolm;
 	
 	//! MALLOC MALCOLM
-	malcolm = malloc(sizeof(malcolm));
+	malcolm = malloc(sizeof(t_malcolm));
 	if (!malcolm) {
 		LOG_ERROR("Failed to malloc malcolm");
 		return (NULL);
