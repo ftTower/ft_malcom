@@ -1,0 +1,8 @@
+{
+	"files.associations": {
+		"string.h": "c",
+		"ainsi.h": "c",
+		"tools.c": "cpp",
+		"ft_malcom.h": "c"
+	}
+}

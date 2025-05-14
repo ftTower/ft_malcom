@@ -9,3 +9,22 @@ void	err(char *err)
 	write(2, "\n", 1);
 	exit(1);
 }
+
+int	ft_atoi(const char *str)
+{
+	size_t		i;
+	int			sign;
+	long int	num;
+
+	i = 0;
+	sign = 1;
+	num = 0;
+	while (str[i] && is_space(str[i]))
+		i++;
+	if (str[i] == '-' || str[i] == '+')
+		if (str[i++] == '-')
+			sign *= -1;
+	while (str[i] >= '0' && str[i] <= '9')
+		num = (num * 10) + (str[i++] - '0');
+	return (num * sign);
+}
