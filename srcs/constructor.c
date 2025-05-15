@@ -57,6 +57,9 @@ t_malcolm *malcolm_constructor(char **argv) {
 		return (free(malcolm->source), free(malcolm), NULL);
 	}
 	
+	
+	memset(&malcolm->device, 0, sizeof(malcolm->device));
+	
 	//! FINISHING
 	if (debug)
 		LOG_DEBUG("Malcolm is ready ");
