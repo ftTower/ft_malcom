@@ -1,4 +1,5 @@
 #include "../headers/ft_malcom.h"
+#include <linux/if_ether.h> // For ETH_P_ARP
 
 t_machine *machine_constructor(char *ip_str, char *mac_adress, bool is_target) {
 	t_machine *machine;
@@ -33,6 +34,13 @@ t_malcolm *malcolm_constructor(char **argv) {
 	if (!malcolm) {
 		LOG_ERROR("Failed to malloc malcolm");
 		return (NULL);
+	}
+	
+	//! SOCKET CREATION
+	malcolm->socket_fd = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ARP));
+	if (malcolm->socket_fd < 0) {
+		LOG_ERROR("Failed to create socket");
+		return (free(malcolm), NULL);
 	}
 	
 	//! IPV4 & MAC VERIFICATION

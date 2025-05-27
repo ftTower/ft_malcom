@@ -10,7 +10,7 @@ void	display_machine(t_machine *machine) {
 	else
 		printf("\n\t%s TARGET %s : \n", RED, RESET);
 	printf("\t\tip : %s %s %s %s\n",YELLOW ,BOLD, machine->ip ,RESET);
-	printf("\t\tmac : %s %s %s %s\n\n",YELLOW ,BOLD, machine->mac ,RESET);
+	printf("\t\tmac : %s %s %s %s\n\n\n\n",YELLOW ,BOLD, machine->mac ,RESET);
 	
 }
 
