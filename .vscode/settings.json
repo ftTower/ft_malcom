@@ -3,6 +3,8 @@
 		"string.h": "c",
 		"ainsi.h": "c",
 		"tools.c": "cpp",
-		"ft_malcom.h": "c"
+		"ft_malcom.h": "c",
+		"if_ether.h": "c",
+		"if_arp.h": "c"
 	}
 }

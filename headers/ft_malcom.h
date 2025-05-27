@@ -47,3 +47,4 @@ t_machine 			*machine_constructor(char *ip_str, char *mac_adress, bool is_target
 
 void				display_malcom(t_malcolm *malcolm);
 void				display_machine(t_machine *machine);
+void				display_waiting_request_arp(int *counter);

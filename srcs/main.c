@@ -1,33 +1,63 @@
 
 #include "../headers/ft_malcom.h"
-#include <unistd.h> // For usleep
-#include <stdio.h>  // For printf, snprintf, fflush
-
+#include <stdio.h>              // printf
+#include <unistd.h>             // usleep
+#include <string.h>             // memcpy, memset
+#include <netinet/if_ether.h>   // struct ethhdr
+#include <net/if_arp.h>         // struct ether_arp, ARPOP_REQUEST
+#include <net/ethernet.h>       // ETH_P_ARP
+#include <net/if_arp.h>         // ARPOP_REQUEST
+#include <errno.h>              // errno
+#include <arpa/inet.h>          // ntohs()
+#include <sys/socket.h>         // recvfrom()
+#include <fcntl.h>              // fcntl, F_SETFL
 
 bool	waiting_arp_request(t_malcolm *malcolm)
 {
-	char buffer[64];
-	int	counter;
-	
-	counter = 0;
-	
-	while(true) {
-		
-		if (counter++ > 3)
-			counter = 0;
-		
-		static const char loading[] = {'.', '.', '.', '.', '\0'};
-		printf("\033[1A\033[2K\r");
-		
-		snprintf(buffer, sizeof(buffer), "Waiting for arp request %.*s", (counter + 1), loading);
-		LOG_INFO(buffer);
-		
-		fflush(stdout);
-		usleep(500000);
-	}
-	
-	(void)malcolm;
-	return (false);
+    int	counter = 0;
+    
+    while (true) {
+        display_waiting_request_arp(&counter);
+        counter++;
+        
+        fcntl(malcolm->socket_fd, F_SETFL, O_NONBLOCK);
+        ssize_t len = recvfrom(malcolm->socket_fd, malcolm->buffer, sizeof(malcolm->buffer), 0, NULL, NULL);
+        if (len < 0) {
+            if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                // Pas de données disponibles, attendre avant de réessayer
+                usleep(200000);
+                continue;
+            } else {
+                LOG_ERROR("Failed to read on buffer");
+                continue;
+            }
+        }		
+        
+        struct ethhdr *eth = (struct ethhdr *) malcolm->buffer;
+        
+        if (ntohs(eth->h_proto) == ETH_P_ARP) {
+			printf("\033[1A\033[2K\r");
+			LOG_INFO("Found a ARP frame ");
+            
+            struct ether_arp *arp = (struct ether_arp *)(malcolm->buffer + sizeof(struct ethhdr));
+        
+            if (ntohs(arp->ea_hdr.ar_op) == ARPOP_REQUEST) {
+                LOG_INFO("Found a ARP request\n");
+
+                struct in_addr src_ip, dst_ip;
+                memcpy(&dst_ip, arp->arp_spa, 4);
+                memcpy(&src_ip, arp->arp_tpa, 4);
+            
+                printf("De : %s\n", inet_ntoa(src_ip));
+                printf("Pour : %s\n\n\n", inet_ntoa(dst_ip));
+            }
+        }
+        
+        sleep(10);
+    }
+    
+    (void)malcolm;
+    return (false);
 }
 
 int		main(int argc, char **argv) {
