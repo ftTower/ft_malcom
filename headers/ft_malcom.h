@@ -8,6 +8,17 @@
 #include <arpa/inet.h>
 #include <ctype.h>
 #include <netpacket/packet.h>
+#include <stdio.h>              // printf
+#include <unistd.h>             // usleep
+#include <string.h>             // memcpy, memset
+#include <netinet/if_ether.h>   // struct ethhdr
+#include <net/if_arp.h>         // struct ether_arp, ARPOP_REQUEST
+#include <net/ethernet.h>       // ETH_P_ARP
+#include <net/if_arp.h>         // ARPOP_REQUEST
+#include <errno.h>              // errno
+#include <arpa/inet.h>          // ntohs()
+#include <sys/socket.h>         // recvfrom()
+#include <fcntl.h>              // fcntl, F_SETFL
 
 #include "./AINSI.h"
 
