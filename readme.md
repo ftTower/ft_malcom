@@ -55,16 +55,16 @@ clear && ip a
 ### Expected Result (`ip a`)
 
 - **Malcolm VM**: `inet 192.168.1.10`
-
 ![Screenshot of Malcolm VM network configuration](https://github.com/ftTower/ftTower/blob/main/assets/Malcolm/ip_a_output_malcolm.png)
 
 - **Victim VM**: `inet 192.168.1.20`
-
 ![Screenshot of Malcolm VM network configuration](https://github.com/ftTower/ftTower/blob/main/assets/Malcolm/ip_a_output_victim.png)
 
 ### Make a NAT network
 
 - In Oracle VM VirtualBox, go to **File > Tools > Network Manager > NAT Networks** and create a network with a name of your choice.
+![Screenshot of Vbox](https://github.com/ftTower/ftTower/blob/main/assets/Malcolm/Vbox_NAT_network.png)
 
 - For both VMs, go to **Machine > Settings > Network**, change "Attached to" from "NAT" to "NAT Network", and select the network you created.
+![Screenshot of VM](https://github.com/ftTower/ftTower/blob/main/assets/Malcolm/vm_network.png)
 
