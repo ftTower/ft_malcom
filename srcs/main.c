@@ -38,8 +38,8 @@ bool	waiting_arp_request(t_malcolm *malcolm)
                 memcpy(&dst_ip, arp->arp_spa, 4);
                 memcpy(&src_ip, arp->arp_tpa, 4);
             
-                printf("De : %s\n", inet_ntoa(src_ip));
-                printf("Pour : %s\n\n\n", inet_ntoa(dst_ip));
+                printf("De : %s\n", inet_ntoa(dst_ip));
+                printf("Pour : %s\n\n\n", inet_ntoa(src_ip));
             }
         }
         

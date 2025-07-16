@@ -2,16 +2,14 @@
 
 ---
 
-
 ## Virtual Machine Setup
 
-This project uses two virtual machines: one as the victim and one as Malcolm (the attacker).
+This project requires two virtual machines: one as the victim and one as Malcolm (the attacker).
 
 - **Debian 12.11.0 Image**: [Download](https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-12.11.0-amd64-netinst.iso)
+- **Virtualization:** Oracle VM VirtualBox is recommended.
 
-**Virtualization:** Oracle VM VirtualBox is recommended.
-
-**Tip:** Install Guest Additions for clipboard sharing and drag-and-drop.
+**Tip:** Install Guest Additions for clipboard sharing and drag-and-drop functionality.
 
 ### Shared Clipboard Configuration
 
@@ -122,3 +120,27 @@ ip -a
 - `<victim_ip>` and `<victim_mac_address>`: Found with `ip -a` on Victim VM.
 
 ---
+
+## ARP Cache Flush on Victim VM
+
+**Recommended method (using `ip`):**
+
+The `ip` command is the modern and more powerful replacement for `ifconfig` and `route`.
+
+To clear all ARP cache entries (ensures a fresh ARP resolution for all communications):
+
+```bash
+ip -s -s neigh flush all
+```
+
+- `ip neigh`: Manages the neighbor table (ARP table for IPv4, NDP table for IPv6).
+- `flush all`: Removes all entries.
+- `-s -s` (optional): Shows statistics before and after the flush.
+
+Then, try:
+
+```bash
+ping google.com
+```
+
+Malcolm should detect an ARP request from your victim VM to the gateway.
