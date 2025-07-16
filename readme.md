@@ -44,6 +44,9 @@ clear && ip a
 
 ### Expected Result (`ip a`)
 
-- **Victim**: `192.168.1.20`
-- **Malcolm**: `192.168.1.10`
+- **Victim**: `inet 192.168.1.20`
+
+![Screenshot of Malcolm VM network configuration](https://github.com/ftTower/ftTower/blob/main/assets/Malcolm/ip_a_output.png)
+
+- **Malcolm**: `inet 192.168.1.10`
 
