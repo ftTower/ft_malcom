@@ -20,7 +20,3 @@ re: fclean all
 run: $(NAME)
 	sudo ./$(NAME) "10.10.10.10" "64:64:64:64:64:64" "10.10.10.10" "64:64:64:64:64:64"
 	rm -f $(NAME)
-
-requirements:
-	sudo apt-get update
-	sudo apt-get install -y vim net-tools iproute2 arping iputils-ping tcpdump
