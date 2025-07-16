@@ -58,7 +58,7 @@ int		main(int argc, char **argv) {
 		return (1);
 	}
 	
-	malcolm = malcolm_constructor(argv + 1);
+	malcolm = malcolm_cconstructor(argv + 1);
 	if (!malcolm) {
 		LOG_ERROR("Failed to build malcolm");
 		return (1);
