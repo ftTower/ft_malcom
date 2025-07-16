@@ -1,11 +1,21 @@
+# FT_MALCOLM
 
 ## Virtual Machine Configuration
 
-Two VMs are used: one for the victim, one for Malcolm.
+This setup uses two virtual machines: one for the victim and one for Malcolm.
 
 - **Debian 12.11.0 Image**: [Download](https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-12.11.0-amd64-netinst.iso)
 
-### Root Login
+For this demonstration, Oracle VM VirtualBox is used.
+
+**Remember to install Guest Additions to enable copy/paste functionality.**
+
+After creating both machines:
+
+In VirtualBox, for both VMs:  
+Go to **Devices > Shared Clipboard > Bidirectional**
+
+### Root Login (to avoid adding yourself to the sudoers file)
 
 ```bash
 su -
@@ -44,9 +54,7 @@ clear && ip a
 
 ### Expected Result (`ip a`)
 
-- **Victim**: `inet 192.168.1.20`
+- **Victim VM**: `inet 192.168.1.20`
+- **Malcolm VM**: `inet 192.168.1.10`
 
 ![Screenshot of Malcolm VM network configuration](https://github.com/ftTower/ftTower/blob/main/assets/Malcolm/ip_a_output.png)
-
-- **Malcolm**: `inet 192.168.1.10`
-
