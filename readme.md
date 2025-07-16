@@ -21,7 +21,7 @@ Go to **Devices > Shared Clipboard > Bidirectional**
 su -
 ```
 
-### Install Required Packages (on both VMs)
+### Install Required Packages (on Malcolm vm)
 
 ```bash
 sudo apt-get update && sudo apt-get upgrade && sudo apt-get install -y vim git net-tools iproute2 arping iputils-ping tcpdump
@@ -61,4 +61,10 @@ clear && ip a
 - **Victim VM**: `inet 192.168.1.20`
 
 ![Screenshot of Malcolm VM network configuration](https://github.com/ftTower/ftTower/blob/main/assets/Malcolm/ip_a_output_victim.png)
+
+### Make a NAT network
+
+- In Oracle VM VirtualBox, go to **File > Tools > Network Manager > NAT Networks** and create a network with a name of your choice.
+
+- For both VMs, go to **Machine > Settings > Network**, change "Attached to" from "NAT" to "NAT Network", and select the network you created.
 
