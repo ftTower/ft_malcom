@@ -168,6 +168,28 @@ The ARP table (Address Resolution Protocol) is a mapping table stored in memory 
 - **ARP Reply:** The device that owns the requested IP address responds with its MAC address. This reply is sent as a unicast frame (directly to the requester).
 - **ARP Table Update:** The device that initiated the request adds the IP-MAC entry to its ARP table for future communications.
 
+// struct ethhdr {
+//     unsigned char   h_dest[ETH_ALEN];   /* Destination Host Address */
+//     unsigned char   h_source[ETH_ALEN]; /* Source Host Address      */
+//     unsigned short  h_proto;            /* Protocol type            */
+// };
+
+struct ether_arp {
+    struct arphdr   ea_hdr;     /* ARP hrd & proto et al */
+    u_char          arp_sha[ETH_ALEN];  /* Sender hardware address */
+    u_char          arp_spa[4];         /* Sender protocol address */
+    u_char          arp_tha[ETH_ALEN];  /* Target hardware address */
+    u_char          arp_tpa[4];         /* Target protocol address */
+};
+
+struct arphdr {
+    unsigned short  ar_hrd;     /* Format of hardware address   */
+    unsigned short  ar_pro;     /* Format of protocol address   */
+    unsigned char   ar_hln;     /* Length of hardware address   */
+    unsigned char   ar_pln;     /* Length of protocol address   */
+    unsigned short  ar_op;      /* ARP opcode (command)         */
+};
+
 ### OSI Model
 
 **Layer 1: Physical Layer**  

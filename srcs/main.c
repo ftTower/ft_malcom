@@ -1,6 +1,28 @@
 
 #include "../headers/ft_malcom.h"
+#include <net/if_arp.h>
 
+// struct ethhdr {
+//     unsigned char   h_dest[ETH_ALEN];   /* Destination Host Address */
+//     unsigned char   h_source[ETH_ALEN]; /* Source Host Address      */
+//     unsigned short  h_proto;            /* Protocol type            */
+// };
+
+// struct arphdr {
+//     unsigned short  ar_hrd;     /* Format of hardware address   */
+//     unsigned short  ar_pro;     /* Format of protocol address   */
+//     unsigned char   ar_hln;     /* Length of hardware address   */
+//     unsigned char   ar_pln;     /* Length of protocol address   */
+//     unsigned short  ar_op;      /* ARP opcode (command)         */
+// };
+
+// struct ether_arp {
+//     struct arphdr   ea_hdr;     /* ARP hrd & proto et al */
+//     unsigned char   arp_sha[6];  /* Sender hardware address */
+//     unsigned char   arp_spa[4];  /* Sender protocol address */
+//     unsigned char   arp_tha[6];  /* Target hardware address */
+//     unsigned char   arp_tpa[4];  /* Target protocol address */
+// };
 
 bool	waiting_arp_request(t_malcolm *malcolm)
 {
@@ -27,23 +49,48 @@ bool	waiting_arp_request(t_malcolm *malcolm)
         
         if (ntohs(eth->h_proto) == ETH_P_ARP) {
 			printf("\033[1A\033[2K\r");
-			LOG_INFO("Found a ARP frame ");
+			LOG_INFO("Found a ARP frame\n");
+            printf("ethhdr->h_dest   : %02x:%02x:%02x:%02x:%02x:%02x\n", eth->h_dest[0], eth->h_dest[1], eth->h_dest[2], eth->h_dest[3], eth->h_dest[4], eth->h_dest[5]);
+            printf("ethhdr->h_source : %02x:%02x:%02x:%02x:%02x:%02x\n", eth->h_source[0], eth->h_source[1], eth->h_source[2], eth->h_source[3], eth->h_source[4], eth->h_source[5]);
+            printf("ethhdr->h_proto  : %d\n", ntohs(eth->h_proto));
             
             struct ether_arp *arp = (struct ether_arp *)(malcolm->buffer + sizeof(struct ethhdr));
         
             if (ntohs(arp->ea_hdr.ar_op) == ARPOP_REQUEST) {
                 LOG_INFO("Found a ARP request\n");
 
+
                 struct in_addr src_ip, dst_ip;
-                memcpy(&dst_ip, arp->arp_spa, 4);
-                memcpy(&src_ip, arp->arp_tpa, 4);
-            
-                printf("De : %s\n", inet_ntoa(dst_ip));
-                printf("Pour : %s\n\n\n", inet_ntoa(src_ip));
+                unsigned char sha[6], tha[6];
+                memcpy(tha, arp->arp_tha, 6);
+                memcpy(&dst_ip, arp->arp_tpa, 4);
+                memcpy(sha, arp->arp_sha, 6);
+                memcpy(&src_ip, arp->arp_spa, 4);
+
+                printf("in_addr->De   : %s\t%02x:%02x:%02x:%02x:%02x:%02x\n", inet_ntoa(src_ip),
+                       sha[0], sha[1], sha[2], sha[3], sha[4], sha[5]);
+                printf("in_addr->Pour : %s\t%02x:%02x:%02x:%02x:%02x:%02x\n\n\n", inet_ntoa(dst_ip),
+                       tha[0], tha[1], tha[2], tha[3], tha[4], tha[5]);
+            }
+            else if (ntohs(arp->ea_hdr.ar_op) == ARPOP_REPLY) {
+                LOG_INFO("Found a ARP reply\n");
+
+
+                struct in_addr src_ip, dst_ip;
+                unsigned char sha[6], tha[6];
+                memcpy(tha, arp->arp_tha, 6);
+                memcpy(&dst_ip, arp->arp_tpa, 4);
+                memcpy(sha, arp->arp_sha, 6);
+                memcpy(&src_ip, arp->arp_spa, 4);
+
+                printf("in_addr->De   : %s\t%02x:%02x:%02x:%02x:%02x:%02x\n", inet_ntoa(src_ip),
+                       sha[0], sha[1], sha[2], sha[3], sha[4], sha[5]);
+                printf("in_addr->Pour : %s\t%02x:%02x:%02x:%02x:%02x:%02x\n\n\n", inet_ntoa(dst_ip),
+                       tha[0], tha[1], tha[2], tha[3], tha[4], tha[5]);
             }
         }
         
-        sleep(10);
+        usleep(100000);
     }
     
     (void)malcolm;
