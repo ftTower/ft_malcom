@@ -6,7 +6,7 @@
 
 This project requires two virtual machines: one as the victim and one as Malcolm (the attacker).
 
-- **Debian 12.11.0 Image**: [Download](https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-12.11.0-amd64-netinst.iso)
+- **Debian 12.11.0 Image:** [Download](https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-12.11.0-amd64-netinst.iso)
 - **Virtualization:** Oracle VM VirtualBox is recommended.
 
 **Tip:** Install Guest Additions for clipboard sharing and drag-and-drop functionality.
@@ -65,10 +65,10 @@ clear && ip a
 
 ### Creating a NAT Network
 
-1. In VirtualBox, go to **File > Tools > Network Manager > NAT Networks** and create a new NAT network.
+1. In VirtualBox, go to **File > Tools > Network Manager > NAT Networks** and create a new NAT network.  
     ![Screenshot of Vbox](https://github.com/ftTower/ftTower/blob/main/assets/Malcolm/Vbox_NAT_network.png)
 
-2. For both VMs, go to **Machine > Settings > Network**, set "Attached to" as **NAT Network**, and select your created network.
+2. For both VMs, go to **Machine > Settings > Network**, set "Attached to" as **NAT Network**, and select your created network.  
     ![Screenshot of VM](https://github.com/ftTower/ftTower/blob/main/assets/Malcolm/vm_network.png)
 
 ---
@@ -90,14 +90,14 @@ ip -r
 ```
 - Output: `default via <gateway_ip>`
 
-![Screenshot of Malcolm](https://github.com/ftTower/ftTower/blob/main/assets/Malcolm/ip_r_output_malcolm.png)
+![Malcolm ip -r output](https://github.com/ftTower/ftTower/blob/main/assets/Malcolm/ip_r_output_malcolm.png)
 
 ```bash
 ip -a
 ```
 - Output: `link/ether <Malcolm_MAC_Address>`
 
-![Screenshot of Malcolm](https://github.com/ftTower/ftTower/blob/main/assets/Malcolm/ip_a_output_malcolm.png)
+![Malcolm ip -a output](https://github.com/ftTower/ftTower/blob/main/assets/Malcolm/ip_a_output_malcolm.png)
 
 On Victim VM:
 
@@ -107,7 +107,7 @@ ip -a
 - Output: `inet <Victim_IP>`
 - Output: `link/ether <Victim_MAC_Address>`
 
-![Screenshot of Victim](https://github.com/ftTower/ftTower/blob/main/assets/Malcolm/ip_a_output_victim.png)
+![Victim ip -a output](https://github.com/ftTower/ftTower/blob/main/assets/Malcolm/ip_a_output_victim.png)
 
 #### Run FT_MALCOLM
 
@@ -144,3 +144,64 @@ ping google.com
 ```
 
 Malcolm should detect an ARP request from your victim VM to the gateway.
+
+---
+
+## How It Works
+
+### Typical Ethernet Frame Content
+
+- **Preamble and Start Frame Delimiter (SFD):** Used for clock synchronization between devices.
+- **Destination MAC Address:** The physical address of the recipient's network card.
+- **Source MAC Address:** The physical address of the sender's network card.
+- **Type/Length (EtherType):** Indicates the type of upper-layer protocol encapsulated in the frame (e.g., 0x0800 for IPv4, 0x0806 for ARP). This field tells the network card how to interpret the frame's content.
+- **Data (Payload):** The actual content, which can be an IP packet, an ARP message, etc. The minimum data size in an Ethernet frame is 46 bytes (padding bytes are added if the content is smaller).
+- **Frame Check Sequence (FCS):** An error-detection code to ensure the frame was not corrupted during transmission.
+
+### ARP Table (ARP Cache)
+
+The ARP table (Address Resolution Protocol) is a mapping table stored in memory (a cache) on each device in the network (computers, routers, etc.). Its role is to map IP addresses (Layer 3 logical addresses) to MAC addresses (Layer 2 physical addresses).
+
+**How the ARP table works:**
+
+- **ARP Request:** If a device needs the MAC address for an IP address it does not know (not present in its ARP table), it sends an ARP request as a broadcast on the local network. This request is encapsulated in an Ethernet frame.
+- **ARP Reply:** The device that owns the requested IP address responds with its MAC address. This reply is sent as a unicast frame (directly to the requester).
+- **ARP Table Update:** The device that initiated the request adds the IP-MAC entry to its ARP table for future communications.
+
+### OSI Model
+
+**Layer 1: Physical Layer**  
+Role: The lowest layer, responsible for transmitting raw bits over the physical medium (cables, Wi-Fi, fiber optics).  
+Analogy: Like the electrical cable itself or radio waves for Wi-Fi. Defines electrical, mechanical, and functional specifications for establishing, maintaining, and disabling physical connections.  
+Examples: RJ45 connectors, volts, Hz, bits, radio waves, Ethernet cables.
+
+**Layer 2: Data Link Layer**  
+Role: Ensures error-free data transmission over a direct link (between two physically connected devices). Manages access to the physical medium and physical addressing.  
+Analogy: Like the mail carrier who puts addresses on envelopes and ensures the envelope is ready to be sent on the correct street. Splits bits into "frames" and adds MAC addresses.  
+Examples: MAC addresses, Ethernet (Ethernet frames), switches, PPP, ARP.
+
+**Layer 3: Network Layer**  
+Role: Manages logical addressing and routing of packets across different networks (from one machine to another, even if they are not on the same local network).  
+Analogy: Like a GPS or map system that finds the best route for your mail to reach the correct city, even if it's far away. Uses IP addresses for this.  
+Examples: IP addresses, routers, IP protocol.
+
+**Layer 4: Transport Layer**  
+Role: Provides reliable end-to-end communication between two applications. Segments data into pieces (segments), numbers them, and ensures they all arrive at the destination in the correct order. Also manages flow control and error detection/correction.  
+Analogy: Like the postal service that ensures your entire package arrives, even if it was divided into several boxes. If a box is lost, it asks the sender to resend it.  
+Examples: TCP (Transmission Control Protocol - reliable, with acknowledgment), UDP (User Datagram Protocol - fast, without acknowledgment), port numbers (80 for HTTP, 443 for HTTPS, etc.).
+
+**Layer 5: Session Layer**  
+Role: Establishes, manages, and terminates communication sessions between applications. Keeps track of who is talking to whom and maintains the connection.  
+Analogy: Like a phone call connection: you dial a number, talk, then hang up. Manages the beginning and end of the conversation.  
+Examples: RPC (Remote Procedure Call), NetBIOS.
+
+**Layer 6: Presentation Layer**  
+Role: Ensures data format compatibility between applications. Translates, compresses, and encrypts data so that information sent by one application is understandable by another.  
+Analogy: Like a translator or encoder ensuring the language you write is understood by the recipient (e.g., converting text data to images, or encrypting/decrypting data).  
+Examples: JPEG, ASCII, EBCDIC, SSL/TLS (also operates at other levels, but has functions here).
+
+**Layer 7: Application Layer**  
+Role: The layer closest to the user. Provides network services directly to software applications. This is where users interact with the network.  
+Analogy: The application you use: your web browser, email client, instant messaging app. It's what you see and interact with directly.  
+Examples: HTTP (for the web), FTP (for file transfer), SMTP (for emails), DNS (for domain name resolution).
+
