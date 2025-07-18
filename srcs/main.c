@@ -32,8 +32,8 @@ bool    make_arp_reply(t_malcolm *malcolm, int reply_num)
     
     //! PUTTING MALCOLM AND VICTIM MAC ADRESS IN ARP FRAME
     eth_header = (struct ethhdr *)packet;
-    memcpy(eth_header->h_dest, malcolm->target->mac_addr, ETH_ALEN);
-    memcpy(eth_header->h_source, malcolm->source->mac_addr, ETH_ALEN);
+    ft_memcpy(eth_header->h_dest, malcolm->target->mac_addr, ETH_ALEN);
+    ft_memcpy(eth_header->h_source, malcolm->source->mac_addr, ETH_ALEN);
     eth_header->h_proto = htons(ETH_P_ARP);
 
     //! MAKING ARP HEADER (arphdr)
@@ -44,17 +44,17 @@ bool    make_arp_reply(t_malcolm *malcolm, int reply_num)
     arp_header->ea_hdr.ar_pln = 4;                   //! Hardware adress length
     arp_header->ea_hdr.ar_op = htons(ARPOP_REPLY);    //! Operation     : ARP Reply
     //! MAKING ARP HEADER (ether_arp)
-    memcpy(arp_header->arp_sha, &malcolm->source->mac_addr, ETH_ALEN);
-    memcpy(arp_header->arp_spa, &malcolm->source->ip_addr.s_addr, 4);
+    ft_memcpy(arp_header->arp_sha, &malcolm->source->mac_addr, ETH_ALEN);
+    ft_memcpy(arp_header->arp_spa, &malcolm->source->ip_addr.s_addr, 4);
 
-    memcpy(arp_header->arp_tha, &malcolm->target->mac_addr, ETH_ALEN);
-    memcpy(arp_header->arp_tpa, &malcolm->target->ip_addr.s_addr, 4);
+    ft_memcpy(arp_header->arp_tha, &malcolm->target->mac_addr, ETH_ALEN);
+    ft_memcpy(arp_header->arp_tpa, &malcolm->target->ip_addr.s_addr, 4);
 
-    memset(&sa, 0, sizeof(sa));
+    ft_memset(&sa, 0, sizeof(sa));
     sa.sll_family = AF_PACKET;
     sa.sll_ifindex = malcolm->interface_index;
     sa.sll_halen   = ETH_ALEN;
-    memcpy(sa.sll_addr, malcolm->target->mac_addr, ETH_ALEN);
+    ft_memcpy(sa.sll_addr, malcolm->target->mac_addr, ETH_ALEN);
 
     ssize_t bytes_sent = sendto(malcolm->socket_fd, packet, sizeof(packet), 0, (struct sockaddr*)&sa, sizeof(sa));
     if (bytes_sent < 0) {
@@ -100,12 +100,12 @@ bool	waiting_arp_request(t_malcolm *malcolm)
                 LOG_INFO("Found a ARP request");
 
                 struct in_addr src_ip, dst_ip;
-                memcpy(&dst_ip, arp->arp_tpa, 4);
-                memcpy(&src_ip, arp->arp_spa, 4);
+                ft_memcpy(&dst_ip, arp->arp_tpa, 4);
+                ft_memcpy(&src_ip, arp->arp_spa, 4);
                 
                 unsigned char sha[6], tha[6];
-                memcpy(sha, arp->arp_sha, 6);
-                memcpy(tha, arp->arp_tha, 6);
+                ft_memcpy(sha, arp->arp_sha, 6);
+                ft_memcpy(tha, arp->arp_tha, 6);
                 
                 struct in_addr malcolm_src_ip;
                 if (inet_aton(malcolm->target->ip, &malcolm_src_ip) && src_ip.s_addr == malcolm_src_ip.s_addr) {

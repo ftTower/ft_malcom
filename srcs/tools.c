@@ -74,6 +74,33 @@ int	ft_atoi(const char *str)
 	return (num * sign);
 }
 
+void	*ft_memcpy(void *dst, const void *src, size_t n)
+{
+	unsigned char	*ptr_dst;
+	const unsigned char *ptr_src;
+
+	if (dst == src)
+		return (dst);
+	ptr_dst = (unsigned char *)dst;
+	ptr_src = (const unsigned char *)src;
+	while (n--)
+		*ptr_dst++ = *ptr_src++;
+	return (dst);
+}
+
+void	*ft_memset(void *str, int c, size_t n)
+{
+	unsigned char	*ptr;
+
+	ptr = (unsigned char *)str;
+	while (n > 0)
+	{
+		*ptr++ = (unsigned char)c;
+		n--;
+	}
+	return (str);
+}
+
 void handle_sigint(int sig) {
     (void)sig;
     keep_running = 0;

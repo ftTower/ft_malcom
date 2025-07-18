@@ -93,7 +93,7 @@ t_malcolm *malcolm_constructor(char **argv) {
 	}
 	
 	
-	memset(&malcolm->device, 0, sizeof(malcolm->device));
+	ft_memset(&malcolm->device, 0, sizeof(malcolm->device));
 	
 	//! FINISHING
 	if (debug)
