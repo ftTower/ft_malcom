@@ -132,7 +132,7 @@ Once FT_MALCOLM is running and listening, execute the following on the Victim VM
 
 ![Malcolm waiting](https://github.com/ftTower/ftTower/blob/main/assets/Malcolm/malcolm_waiting.png)
 ```bash
-ip -s -s neigh flush all && ping -c <gateway_ip>
+ip -s -s neigh flush all && ping -c 1 <gateway_ip>
 ```
 
 ![Malcolm injected](https://github.com/ftTower/ftTower/blob/main/assets/Malcolm/malcolm_injected.png)
