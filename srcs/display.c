@@ -25,8 +25,7 @@ void	display_machine(t_machine *machine) {
 	else
 		printf("\n\t%s TARGET %s : \n", RED, RESET);
 	printf("\t\tip : %s %s %s %s\n",YELLOW ,BOLD, machine->ip ,RESET);
-	printf("\t\tmac : %s %s %s %s\n\n\n\n",YELLOW ,BOLD, machine->mac ,RESET);
-	
+	printf("\t\tmac : %s %s %s %s\n\n",YELLOW ,BOLD, machine->mac ,RESET);
 }
 
 void	display_malcom(t_malcolm *malcolm) {
@@ -34,7 +33,8 @@ void	display_malcom(t_malcolm *malcolm) {
 		LOG_ERROR("No malcolm to print, aborted for safety reason");
 		return ;
 	}
-	
 	display_machine(malcolm->source);
 	display_machine(malcolm->target);
+	printf("\t%snetwork interface : %s%s %s %s %s\n\n\n",BLUE, RESET ,MAGENTA ,BOLD, malcolm->interface_name ,RESET);
+
 }

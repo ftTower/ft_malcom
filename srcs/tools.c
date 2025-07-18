@@ -2,13 +2,20 @@
 
 void	safe_exit(t_malcolm *malcolm) {
 	if (malcolm) {
+		if (malcolm->socket_fd >= 0) {
+			close(malcolm->socket_fd);
+			if (debug)
+				LOG_EXIT("Socket closed");
+		}
+		if (malcolm->interface_name)
+			free(malcolm->interface_name);
 		if (malcolm->source)
 			free(malcolm->source);
 		if (malcolm->target)
 			free(malcolm->target);
 		free(malcolm);
 		if (debug)
-			LOG_DEBUG("Malcolm is freed ! bye bye..");
+			LOG_EXIT("Malcolm is freed ! bye bye..");
 	}
 	exit(0);
 }
@@ -64,4 +71,50 @@ int	ft_atoi(const char *str)
 	while (str[i] >= '0' && str[i] <= '9')
 		num = (num * 10) + (str[i++] - '0');
 	return (num * sign);
+}
+
+void handle_sigint(int sig) {
+    (void)sig;
+    keep_running = 0;
+}
+
+bool    signal_handler()
+{
+    signal(SIGINT, handle_sigint);
+    return keep_running;
+}
+
+bool    get_malcolm_interface(t_malcolm *malcolm)
+{
+    struct ifaddrs *ifaddr, *ifa;
+
+    if (getifaddrs(&ifaddr) == -1) {
+        LOG_ERROR("getifaddrs failed");
+        return false;
+    }
+
+    for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next)
+    {
+        if (ifa->ifa_addr == NULL)
+            continue;
+
+        if (strcmp(ifa->ifa_name, "lo") == 0)
+            continue;
+
+        if (malcolm->interface_name == NULL) {
+            malcolm->interface_name = strdup(ifa->ifa_name); // Duplicate to store it
+            if (malcolm->interface_name == NULL) {
+                LOG_ERROR("Memory allocation failed for interface name.");
+                freeifaddrs(ifaddr);
+                return false;
+            }
+            // LOG_INFO("No interface name provided, automatically selected: %s", malcolm->interface_name);
+            printf("interface : %s\n", malcolm->interface_name);
+            freeifaddrs(ifaddr);
+			return true;
+        }
+    }
+	LOG_ERROR("No suitable network interface found.");
+    freeifaddrs(ifaddr);
+    return false;
 }

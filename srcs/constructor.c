@@ -1,7 +1,17 @@
 #include "../headers/ft_malcom.h"
 #include <linux/if_ether.h> // For ETH_P_ARP
 
-t_machine *machine_constructor(char *ip_str, char *mac_adress, bool is_target) {
+bool mac_aton(const char *mac_str, unsigned char *mac_addr)
+{
+    if (sscanf(mac_str, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx",
+               &mac_addr[0], &mac_addr[1], &mac_addr[2],
+               &mac_addr[3], &mac_addr[4], &mac_addr[5]) == 6) {
+        return true;
+    }
+    return false;
+}
+
+t_machine *machine_constructor(char *ip_str, char *mac_address, bool is_target) {
 	t_machine *machine;
 	
 	//!MALLOC MACHINE
@@ -13,15 +23,21 @@ t_machine *machine_constructor(char *ip_str, char *mac_adress, bool is_target) {
 	
 	//!SET MACHINE INFO
 	machine->ip = ip_str;
-	machine->mac = mac_adress;
+	machine->mac = mac_address;
 	machine->is_target = is_target;
 	
+	
+	if (!mac_aton(machine->mac, machine->mac_addr)) {
+		LOG_ERROR("Failed to aton a mac adress");
+		return (free(machine), NULL);
+	}
+
 	//!DEBUG
 	if (is_target && debug)
 		LOG_DEBUG("Target machine is ready ");
 	else if (debug)
 		LOG_DEBUG("Source machine is ready ");
-
+	
 	return (machine);
 }
 
@@ -36,6 +52,13 @@ t_malcolm *malcolm_constructor(char **argv) {
 		return (NULL);
 	}
 	
+	malcolm->interface_name = NULL;
+	if (!get_malcolm_interface(malcolm)) {
+		LOG_ERROR("Failed to get malcolm network interface");
+		return (free(malcolm), NULL);
+	}
+
+
 	//! SOCKET CREATION
 	malcolm->socket_fd = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ARP));
 	if (malcolm->socket_fd < 0) {

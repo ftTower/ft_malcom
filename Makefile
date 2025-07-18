@@ -22,4 +22,8 @@ re: fclean all
 
 run: re clear $(NAME)
 	sudo ./$(NAME) "10.0.2.1" "08:00:27:d5:38:22" "10.0.2.5" "08:00:27:bc:f7:31"
+
+check: re clear $(NAME)
+	sudo valgrind --leak-check=full --track-fds=all ./$(NAME) "10.0.2.1" "08:00:27:d5:38:22" "10.0.2.5" "08:00:27:bc:f7:31"
+
 # 	rm -f $(NAME)

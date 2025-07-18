@@ -29,5 +29,7 @@
 # define LOG_WARN(msg)     printf(YELLOW "[WARNING] " RESET "%s\n", msg)
 # define LOG_ERROR(msg)    printf(RED BOLD "[ERROR] " RESET WHITE BOLD"%s\n"RESET, msg)
 # define LOG_DEBUG(msg)    printf(CYAN "[DEBUG] " RESET "%s\n", msg)
+# define LOG_EXIT(msg)    printf(MAGENTA "[EXIT] " RESET "%s\n", msg)
+
 
 #endif
