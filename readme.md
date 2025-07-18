@@ -8,6 +8,18 @@
 
 ---
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Virtual Machine Setup](#virtual-machine-setup)
+- [VM Network Configuration](#vm-network-configuration)
+- [Man-in-the-Middle Attack](#man-in-the-middle-attack)
+- [How It Works](#how-it-works)
+- [OSI Model](#osi-model)
+- [Sources](#sources)
+
+---
+
 ## Virtual Machine Setup
 
 This project requires two virtual machines: one as the victim and one as Malcolm (the attacker).
@@ -201,6 +213,7 @@ struct arphdr {
 };
 ```
 
+---
 ### OSI Model
 
 **Layer 1: Physical Layer**  
