@@ -60,6 +60,9 @@ size_t				ft_strlen(const char *s);
 bool    			get_malcolm_interface(t_malcolm *malcolm);
 void 				handle_sigint(int sig);
 bool    			signal_handler();
+void				*ft_memcpy(void *dst, const void *src, size_t n);
+void				*ft_memset(void *str, int c, size_t n);
+
 
 bool				is_space(char c);
 bool 				is_valid_mac(const char *mac);
