@@ -1,4 +1,5 @@
 #include "../headers/ft_malcom.h"
+#include <net/if.h>
 
 void	safe_exit(t_malcolm *malcolm) {
 	if (malcolm) {
@@ -84,37 +85,38 @@ bool    signal_handler()
     return keep_running;
 }
 
-bool    get_malcolm_interface(t_malcolm *malcolm)
+bool get_malcolm_interface(t_malcolm *malcolm)
 {
-    struct ifaddrs *ifaddr, *ifa;
+	struct ifaddrs *ifaddr, *ifa;
+	int index = 0;
 
-    if (getifaddrs(&ifaddr) == -1) {
-        LOG_ERROR("getifaddrs failed");
-        return false;
-    }
+	if (getifaddrs(&ifaddr) == -1) {
+		LOG_ERROR("getifaddrs failed");
+		return false;
+	}
 
-    for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next)
-    {
-        if (ifa->ifa_addr == NULL)
-            continue;
+	for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next, index++)
+	{
+		if (ifa->ifa_addr == NULL)
+			continue;
 
-        if (strcmp(ifa->ifa_name, "lo") == 0)
-            continue;
+		if (strcmp(ifa->ifa_name, "lo") == 0)
+			continue;
 
-        if (malcolm->interface_name == NULL) {
-            malcolm->interface_name = strdup(ifa->ifa_name); // Duplicate to store it
-            if (malcolm->interface_name == NULL) {
-                LOG_ERROR("Memory allocation failed for interface name.");
-                freeifaddrs(ifaddr);
-                return false;
-            }
-            // LOG_INFO("No interface name provided, automatically selected: %s", malcolm->interface_name);
-            printf("interface : %s\n", malcolm->interface_name);
-            freeifaddrs(ifaddr);
+		if (malcolm->interface_name == NULL) {
+			malcolm->interface_name = strdup(ifa->ifa_name); // Duplicate to store it
+			if (malcolm->interface_name == NULL) {
+				LOG_ERROR("Memory allocation failed for interface name.");
+				freeifaddrs(ifaddr);
+				return false;
+			}
+			malcolm->interface_index = if_nametoindex(ifa->ifa_name);
+			printf("interface : %s (index: %u)\n", malcolm->interface_name, malcolm->interface_index);
+			freeifaddrs(ifaddr);
 			return true;
-        }
-    }
+		}
+	}
 	LOG_ERROR("No suitable network interface found.");
-    freeifaddrs(ifaddr);
-    return false;
+	freeifaddrs(ifaddr);
+	return false;
 }

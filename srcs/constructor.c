@@ -26,7 +26,11 @@ t_machine *machine_constructor(char *ip_str, char *mac_address, bool is_target) 
 	machine->mac = mac_address;
 	machine->is_target = is_target;
 	
-	
+	if (inet_pton(AF_INET, ip_str, &machine->ip_addr) <= 0){
+		LOG_ERROR("Invalid IP address in machine_constructor");
+        free(machine->ip); free(machine->mac); free(machine); return NULL;
+	} 
+
 	if (!mac_aton(machine->mac, machine->mac_addr)) {
 		LOG_ERROR("Failed to aton a mac adress");
 		return (free(machine), NULL);

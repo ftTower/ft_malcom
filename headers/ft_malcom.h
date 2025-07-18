@@ -35,7 +35,8 @@ typedef struct s_machine
 	bool			is_target;
 	char			*ip;
 	char			*mac;
-	unsigned char	mac_addr[6];
+	unsigned char	mac_addr[ETH_ALEN];
+	struct in_addr  ip_addr;
 }	t_machine;
 
 typedef struct s_malcolm
@@ -46,7 +47,7 @@ typedef struct s_malcolm
 	int				socket_fd;
 	unsigned char 	buffer[BUFFER_SIZE];
 	char			*interface_name;
-
+	int				interface_index;
 	struct sockaddr_ll 	device;
 	
 }	t_malcolm;
