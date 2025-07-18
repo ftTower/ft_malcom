@@ -1,9 +1,12 @@
 #include "../headers/ft_malcom.h"
 #include <net/if.h>
 
-void	safe_exit(t_malcolm *malcolm) {
-	if (malcolm) {
-		if (malcolm->socket_fd >= 0) {
+void safe_exit(t_malcolm *malcolm)
+{
+	if (malcolm)
+	{
+		if (malcolm->socket_fd >= 0)
+		{
 			close(malcolm->socket_fd);
 			if (debug)
 				LOG_EXIT("Socket closed");
@@ -21,7 +24,7 @@ void	safe_exit(t_malcolm *malcolm) {
 	exit(0);
 }
 
-void	err(char *err)
+void err(char *err)
 {
 	if (err)
 		write(2, err, strlen(err));
@@ -33,7 +36,7 @@ void	err(char *err)
 
 size_t ft_strlen(const char *s)
 {
-	size_t	i;
+	size_t i;
 
 	i = 0;
 	while (s[i])
@@ -41,9 +44,9 @@ size_t ft_strlen(const char *s)
 	return (i);
 }
 
-int	ft_strncmp(const char *s1, const char *s2, size_t n)
+int ft_strncmp(const char *s1, const char *s2, size_t n)
 {
-	size_t	i;
+	size_t i;
 
 	if (n == 0)
 		return (0);
@@ -55,11 +58,11 @@ int	ft_strncmp(const char *s1, const char *s2, size_t n)
 	return ((unsigned char)s1[i] - (unsigned char)s2[i]);
 }
 
-int	ft_atoi(const char *str)
+int ft_atoi(const char *str)
 {
-	size_t		i;
-	int			sign;
-	long int	num;
+	size_t i;
+	int sign;
+	long int num;
 
 	i = 0;
 	sign = 1;
@@ -74,9 +77,9 @@ int	ft_atoi(const char *str)
 	return (num * sign);
 }
 
-void	*ft_memcpy(void *dst, const void *src, size_t n)
+void *ft_memcpy(void *dst, const void *src, size_t n)
 {
-	unsigned char	*ptr_dst;
+	unsigned char *ptr_dst;
 	const unsigned char *ptr_src;
 
 	if (dst == src)
@@ -88,9 +91,9 @@ void	*ft_memcpy(void *dst, const void *src, size_t n)
 	return (dst);
 }
 
-void	*ft_memset(void *str, int c, size_t n)
+void *ft_memset(void *str, int c, size_t n)
 {
-	unsigned char	*ptr;
+	unsigned char *ptr;
 
 	ptr = (unsigned char *)str;
 	while (n > 0)
@@ -101,15 +104,16 @@ void	*ft_memset(void *str, int c, size_t n)
 	return (str);
 }
 
-void handle_sigint(int sig) {
-    (void)sig;
-    keep_running = 0;
+void handle_sigint(int sig)
+{
+	(void)sig;
+	keep_running = 0;
 }
 
-bool    signal_handler()
+bool signal_handler()
 {
-    signal(SIGINT, handle_sigint);
-    return keep_running;
+	signal(SIGINT, handle_sigint);
+	return keep_running;
 }
 
 bool get_malcolm_interface(t_malcolm *malcolm)
@@ -117,7 +121,8 @@ bool get_malcolm_interface(t_malcolm *malcolm)
 	struct ifaddrs *ifaddr, *ifa;
 	int index = 0;
 
-	if (getifaddrs(&ifaddr) == -1) {
+	if (getifaddrs(&ifaddr) == -1)
+	{
 		LOG_ERROR("getifaddrs failed");
 		return false;
 	}
@@ -130,9 +135,11 @@ bool get_malcolm_interface(t_malcolm *malcolm)
 		if (strcmp(ifa->ifa_name, "lo") == 0)
 			continue;
 
-		if (malcolm->interface_name == NULL) {
+		if (malcolm->interface_name == NULL)
+		{
 			malcolm->interface_name = strdup(ifa->ifa_name); // Duplicate to store it
-			if (malcolm->interface_name == NULL) {
+			if (malcolm->interface_name == NULL)
+			{
 				LOG_ERROR("Memory allocation failed for interface name.");
 				freeifaddrs(ifaddr);
 				return false;
