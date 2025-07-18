@@ -67,29 +67,29 @@ t_malcolm *malcolm_constructor(char **argv) {
 	malcolm->socket_fd = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ARP));
 	if (malcolm->socket_fd < 0) {
 		LOG_ERROR("Failed to create socket");
-		return (free(malcolm), NULL);
+		return (free(malcolm->interface_name),free(malcolm), NULL);
 	}
 	
 	//! IPV4 & MAC VERIFICATION
 	if (!is_valid_ipv4(argv[0]) || !is_valid_ipv4(argv[2])) {
 		LOG_ERROR("Invalid ipv4 detected ! must be 4 numbers <0.0.0.0>");
-		return (free(malcolm), NULL);
+		return (free(malcolm->interface_name),free(malcolm), NULL);
 	}
 	else if (!is_valid_mac(argv[1]) || !is_valid_mac(argv[3])) {
 		LOG_ERROR("Invalid mac adress detected ! must be 6 pairs <XX:XX:XX:XX:XX:XX>");
-		return (free(malcolm), NULL);
+		return (free(malcolm->interface_name),free(malcolm), NULL);
 	}
 	
 	//!MACHINES
 	malcolm->source = machine_constructor(argv[0], argv[1], false);
 	if (!malcolm->source) {
 		LOG_ERROR("Failed to build source machine");
-		return (free(malcolm), NULL);
+		return (free(malcolm->interface_name),free(malcolm), NULL);
 	}
 	malcolm->target = machine_constructor(argv[2], argv[3], true);
 	if (!malcolm->target) {
 		LOG_ERROR("Failed to build machines");
-		return (free(malcolm->source), free(malcolm), NULL);
+		return (free(malcolm->source), free(malcolm->interface_name),free(malcolm), NULL);
 	}
 	
 	
