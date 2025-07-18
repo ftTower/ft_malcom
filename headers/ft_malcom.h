@@ -47,6 +47,8 @@ typedef struct s_malcolm
 void				err(char *err);
 int					ft_atoi(const char *str);
 void				safe_exit(t_malcolm *malcolm);
+int					ft_strncmp(const char *s1, const char *s2, size_t n);
+size_t				ft_strlen(const char *s);	
 
 bool				is_space(char c);
 bool 				is_valid_mac(const char *mac);

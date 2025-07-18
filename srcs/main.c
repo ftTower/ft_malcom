@@ -67,27 +67,17 @@ bool	waiting_arp_request(t_malcolm *malcolm)
                 memcpy(sha, arp->arp_sha, 6);
                 memcpy(&src_ip, arp->arp_spa, 4);
 
-                printf("in_addr->De   : %s\t%02x:%02x:%02x:%02x:%02x:%02x\n", inet_ntoa(src_ip),
+                char *src_ip_str = inet_ntoa(src_ip);
+                char *dst_ip_str = inet_ntoa(dst_ip);
+                printf("in_addr->De   : %s\t%02x:%02x:%02x:%02x:%02x:%02x\n", src_ip_str,
                        sha[0], sha[1], sha[2], sha[3], sha[4], sha[5]);
-                printf("in_addr->Pour : %s\t%02x:%02x:%02x:%02x:%02x:%02x\n\n\n", inet_ntoa(dst_ip),
+                printf("in_addr->Pour : %s\t%02x:%02x:%02x:%02x:%02x:%02x\n\n\n", dst_ip_str,
                        tha[0], tha[1], tha[2], tha[3], tha[4], tha[5]);
+
+                if (!ft_strncmp(src_ip_str, malcolm->source->ip, strlen(src_ip_str)))
+                    printf("\ntarget spoted\n");
             }
-            else if (ntohs(arp->ea_hdr.ar_op) == ARPOP_REPLY) {
-                LOG_INFO("Found a ARP reply\n");
-
-
-                struct in_addr src_ip, dst_ip;
-                unsigned char sha[6], tha[6];
-                memcpy(tha, arp->arp_tha, 6);
-                memcpy(&dst_ip, arp->arp_tpa, 4);
-                memcpy(sha, arp->arp_sha, 6);
-                memcpy(&src_ip, arp->arp_spa, 4);
-
-                printf("in_addr->De   : %s\t%02x:%02x:%02x:%02x:%02x:%02x\n", inet_ntoa(src_ip),
-                       sha[0], sha[1], sha[2], sha[3], sha[4], sha[5]);
-                printf("in_addr->Pour : %s\t%02x:%02x:%02x:%02x:%02x:%02x\n\n\n", inet_ntoa(dst_ip),
-                       tha[0], tha[1], tha[2], tha[3], tha[4], tha[5]);
-            }
+            
         }
         
         usleep(100000);

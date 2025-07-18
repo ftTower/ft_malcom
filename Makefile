@@ -20,6 +20,6 @@ fclean: clean
 
 re: fclean all
 
-run: clear $(NAME)
+run: re clear $(NAME)
 	sudo ./$(NAME) "10.0.2.1" "08:00:27:d5:38:22" "10.0.2.5" "08:00:27:bc:f7:31"
 # 	rm -f $(NAME)
