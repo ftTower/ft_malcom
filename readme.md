@@ -147,6 +147,13 @@ ip neigh show
 
 You should see the gateway IP associated with Malcolm's MAC address, indicating a successful ARP spoofing attack.
 
+
+You can observe the traffic with this command:
+```bash
+tcpdump -vv -i <interface> arp
+```
+<interface> on 42 computer : enp0s3
+
 ---
 
 ## How It Works
@@ -223,4 +230,13 @@ Examples: JPEG, ASCII, SSL/TLS.
 **Layer 7: Application Layer**  
 Provides network services directly to software applications, closest to the user.  
 Examples: HTTP, FTP, SMTP, DNS.
+
+## Sources
+
+- [Man-in-the-middle-attack](https://datatracker.ietf.org/doc/html/rfc7042)
+- [Address Resolution Protocol](https://en.wikipedia.org/wiki/Address_Resolution_Protocol)
+- [rfc826](https://datatracker.ietf.org/doc/html/rfc826)
+- [rfc7042](https://datatracker.ietf.org/doc/html/rfc7042)
+- [NetworkConfiguration](https://wiki.debian.org/NetworkConfiguration)
+- [git that i found usefull](https://github.com/BredyByte/ft_malcolm)
 
