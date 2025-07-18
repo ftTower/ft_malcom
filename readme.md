@@ -2,6 +2,12 @@
 
 ---
 
+## Overview
+
+**FT_MALCOLM** is a project that demonstrates a Man-in-the-Middle (MITM) attack using ARP spoofing in a controlled virtual environment. This guide walks you through setting up two Debian virtual machines (one attacker, one victim), configuring their networks, and running the FT_MALCOLM tool to observe ARP poisoning in action. The document also explains the underlying network concepts and protocols involved.
+
+---
+
 ## Virtual Machine Setup
 
 This project requires two virtual machines: one as the victim and one as Malcolm (the attacker).
@@ -116,6 +122,7 @@ On the Malcolm VM, start the attack tool with:
 ```bash
 ./ft_malcolm <gateway_ip> <malcolm_mac_address> <victim_ip> <victim_mac_address>
 ```
+![Malcolm inputs](https://github.com/ftTower/ftTower/blob/main/assets/Malcolm/malcolm_inputs.png)
 
 - `<gateway_ip>`: Obtain with `ip -r` on Malcolm VM.
 - `<malcolm_mac_address>`: Obtain with `ip -a` on Malcolm VM.
@@ -123,10 +130,12 @@ On the Malcolm VM, start the attack tool with:
 
 Once FT_MALCOLM is running and listening, execute the following on the Victim VM to flush the ARP cache and trigger a new ARP request:
 
+![Malcolm waiting](https://github.com/ftTower/ftTower/blob/main/assets/Malcolm/malcolm_waiting.png)
 ```bash
 ip -s -s neigh flush all && ping -c <gateway_ip>
 ```
 
+![Malcolm injected](https://github.com/ftTower/ftTower/blob/main/assets/Malcolm/malcolm_injected.png)
 Malcolm should detect the ARP request from the Victim VM to the gateway and respond accordingly.
 
 To verify if the victim is ARP poisoned, display the ARP table on the Victim VM:
@@ -134,7 +143,7 @@ To verify if the victim is ARP poisoned, display the ARP table on the Victim VM:
 ```bash
 ip neigh show
 ```
-
+![Victim ARP table](https://github.com/ftTower/ftTower/blob/main/assets/Malcolm/arp_table.png)
 You should see the gateway IP associated with Malcolm's MAC address, indicating a successful ARP spoofing attack.
 
 ---
@@ -146,20 +155,21 @@ You should see the gateway IP associated with Malcolm's MAC address, indicating 
 - **Preamble and Start Frame Delimiter (SFD):** Used for clock synchronization between devices.
 - **Destination MAC Address:** The physical address of the recipient's network card.
 - **Source MAC Address:** The physical address of the sender's network card.
-- **Type/Length (EtherType):** Indicates the type of upper-layer protocol encapsulated in the frame (e.g., 0x0800 for IPv4, 0x0806 for ARP). This field tells the network card how to interpret the frame's content.
+- **Type/Length (EtherType):** Indicates the type of upper-layer protocol encapsulated in the frame (e.g., 0x0800 for IPv4, 0x0806 for ARP).
 - **Data (Payload):** The actual content, which can be an IP packet, an ARP message, etc. The minimum data size in an Ethernet frame is 46 bytes (padding bytes are added if the content is smaller).
 - **Frame Check Sequence (FCS):** An error-detection code to ensure the frame was not corrupted during transmission.
 
 ### ARP Table (ARP Cache)
 
-The ARP table (Address Resolution Protocol) is a mapping table stored in memory (a cache) on each device in the network (computers, routers, etc.). Its role is to map IP addresses (Layer 3 logical addresses) to MAC addresses (Layer 2 physical addresses).
+The ARP table (Address Resolution Protocol) is a mapping table stored in memory (a cache) on each device in the network. Its role is to map IP addresses (Layer 3 logical addresses) to MAC addresses (Layer 2 physical addresses).
 
 **How the ARP table works:**
 
-- **ARP Request:** If a device needs the MAC address for an IP address it does not know (not present in its ARP table), it sends an ARP request as a broadcast on the local network. This request is encapsulated in an Ethernet frame.
-- **ARP Reply:** The device that owns the requested IP address responds with its MAC address. This reply is sent as a unicast frame (directly to the requester).
+- **ARP Request:** If a device needs the MAC address for an IP address it does not know, it sends an ARP request as a broadcast on the local network.
+- **ARP Reply:** The device that owns the requested IP address responds with its MAC address. This reply is sent as a unicast frame.
 - **ARP Table Update:** The device that initiated the request adds the IP-MAC entry to its ARP table for future communications.
 
+```c
 // struct ethhdr {
 //     unsigned char   h_dest[ETH_ALEN];   /* Destination Host Address */
 //     unsigned char   h_source[ETH_ALEN]; /* Source Host Address      */
@@ -181,41 +191,35 @@ struct arphdr {
     unsigned char   ar_pln;     /* Length of protocol address   */
     unsigned short  ar_op;      /* ARP opcode (command)         */
 };
+```
 
 ### OSI Model
 
 **Layer 1: Physical Layer**  
-Role: The lowest layer, responsible for transmitting raw bits over the physical medium (cables, Wi-Fi, fiber optics).  
-Analogy: Like the electrical cable itself or radio waves for Wi-Fi. Defines electrical, mechanical, and functional specifications for establishing, maintaining, and disabling physical connections.  
+Responsible for transmitting raw bits over the physical medium (cables, Wi-Fi, fiber optics).  
 Examples: RJ45 connectors, volts, Hz, bits, radio waves, Ethernet cables.
 
 **Layer 2: Data Link Layer**  
-Role: Ensures error-free data transmission over a direct link (between two physically connected devices). Manages access to the physical medium and physical addressing.  
-Analogy: Like the mail carrier who puts addresses on envelopes and ensures the envelope is ready to be sent on the correct street. Splits bits into "frames" and adds MAC addresses.  
-Examples: MAC addresses, Ethernet (Ethernet frames), switches, PPP, ARP.
+Ensures error-free data transmission over a direct link and manages physical addressing.  
+Examples: MAC addresses, Ethernet frames, switches, PPP, ARP.
 
 **Layer 3: Network Layer**  
-Role: Manages logical addressing and routing of packets across different networks (from one machine to another, even if they are not on the same local network).  
-Analogy: Like a GPS or map system that finds the best route for your mail to reach the correct city, even if it's far away. Uses IP addresses for this.  
+Manages logical addressing and routing of packets across different networks.  
 Examples: IP addresses, routers, IP protocol.
 
 **Layer 4: Transport Layer**  
-Role: Provides reliable end-to-end communication between two applications. Segments data into pieces (segments), numbers them, and ensures they all arrive at the destination in the correct order. Also manages flow control and error detection/correction.  
-Analogy: Like the postal service that ensures your entire package arrives, even if it was divided into several boxes. If a box is lost, it asks the sender to resend it.  
-Examples: TCP (Transmission Control Protocol - reliable, with acknowledgment), UDP (User Datagram Protocol - fast, without acknowledgment), port numbers (80 for HTTP, 443 for HTTPS, etc.).
+Provides reliable end-to-end communication between applications, segments data, and ensures correct order.  
+Examples: TCP, UDP, port numbers.
 
 **Layer 5: Session Layer**  
-Role: Establishes, manages, and terminates communication sessions between applications. Keeps track of who is talking to whom and maintains the connection.  
-Analogy: Like a phone call connection: you dial a number, talk, then hang up. Manages the beginning and end of the conversation.  
-Examples: RPC (Remote Procedure Call), NetBIOS.
+Establishes, manages, and terminates communication sessions between applications.  
+Examples: RPC, NetBIOS.
 
 **Layer 6: Presentation Layer**  
-Role: Ensures data format compatibility between applications. Translates, compresses, and encrypts data so that information sent by one application is understandable by another.  
-Analogy: Like a translator or encoder ensuring the language you write is understood by the recipient (e.g., converting text data to images, or encrypting/decrypting data).  
-Examples: JPEG, ASCII, EBCDIC, SSL/TLS (also operates at other levels, but has functions here).
+Ensures data format compatibility, translates, compresses, and encrypts data.  
+Examples: JPEG, ASCII, SSL/TLS.
 
 **Layer 7: Application Layer**  
-Role: The layer closest to the user. Provides network services directly to software applications. This is where users interact with the network.  
-Analogy: The application you use: your web browser, email client, instant messaging app. It's what you see and interact with directly.  
-Examples: HTTP (for the web), FTP (for file transfer), SMTP (for emails), DNS (for domain name resolution).
+Provides network services directly to software applications, closest to the user.  
+Examples: HTTP, FTP, SMTP, DNS.
 
