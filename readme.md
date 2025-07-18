@@ -144,6 +144,7 @@ To verify if the victim is ARP poisoned, display the ARP table on the Victim VM:
 ip neigh show
 ```
 ![Victim ARP table](https://github.com/ftTower/ftTower/blob/main/assets/Malcolm/arp_table.png)
+
 You should see the gateway IP associated with Malcolm's MAC address, indicating a successful ARP spoofing attack.
 
 ---
@@ -170,11 +171,11 @@ The ARP table (Address Resolution Protocol) is a mapping table stored in memory 
 - **ARP Table Update:** The device that initiated the request adds the IP-MAC entry to its ARP table for future communications.
 
 ```c
-// struct ethhdr {
-//     unsigned char   h_dest[ETH_ALEN];   /* Destination Host Address */
-//     unsigned char   h_source[ETH_ALEN]; /* Source Host Address      */
-//     unsigned short  h_proto;            /* Protocol type            */
-// };
+struct ethhdr {
+    unsigned char   h_dest[ETH_ALEN];   /* Destination Host Address */
+    unsigned char   h_source[ETH_ALEN]; /* Source Host Address      */
+    unsigned short  h_proto;            /* Protocol type            */
+};
 
 struct ether_arp {
     struct arphdr   ea_hdr;     /* ARP hrd & proto et al */
