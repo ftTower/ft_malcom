@@ -109,49 +109,33 @@ ip -a
 
 ![Victim ip -a output](https://github.com/ftTower/ftTower/blob/main/assets/Malcolm/ip_a_output_victim.png)
 
-#### Run FT_MALCOLM
+#### Running FT_MALCOLM
+
+On the Malcolm VM, start the attack tool with:
 
 ```bash
 ./ft_malcolm <gateway_ip> <malcolm_mac_address> <victim_ip> <victim_mac_address>
 ```
 
-- `<gateway_ip>`: Found with `ip -r` on Malcolm VM.
-- `<malcolm_mac_address>`: Found with `ip -a` on Malcolm VM.
-- `<victim_ip>` and `<victim_mac_address>`: Found with `ip -a` on Victim VM.
+- `<gateway_ip>`: Obtain with `ip -r` on Malcolm VM.
+- `<malcolm_mac_address>`: Obtain with `ip -a` on Malcolm VM.
+- `<victim_ip>` and `<victim_mac_address>`: Obtain with `ip -a` on Victim VM.
 
----
-
-## ARP Cache Flush on Victim VM
-
-**Recommended method (using `ip`):**
-
-The `ip` command is the modern and more powerful replacement for `ifconfig` and `route`.
-
-To clear all ARP cache entries (ensures a fresh ARP resolution for all communications):
+Once FT_MALCOLM is running and listening, execute the following on the Victim VM to flush the ARP cache and trigger a new ARP request:
 
 ```bash
-ip -s -s neigh flush all
+ip -s -s neigh flush all && ping -c <gateway_ip>
 ```
 
-- `ip neigh`: Manages the neighbor table (ARP table for IPv4, NDP table for IPv6).
-- `flush all`: Removes all entries.
-- `-s -s` (optional): Shows statistics before and after the flush.
+Malcolm should detect the ARP request from the Victim VM to the gateway and respond accordingly.
 
-Then, try:
+To verify if the victim is ARP poisoned, display the ARP table on the Victim VM:
 
-```bash
-ping google.com
-```
-
-Malcolm should detect an ARP request from your victim VM to the gateway.
-
-
-### verify if victim is arp poisened
-to display arp tables in victim vm
 ```bash
 ip neigh show
 ```
-you should see the gateway ip and 
+
+You should see the gateway IP associated with Malcolm's MAC address, indicating a successful ARP spoofing attack.
 
 ---
 
