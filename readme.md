@@ -145,6 +145,14 @@ ping google.com
 
 Malcolm should detect an ARP request from your victim VM to the gateway.
 
+
+### verify if victim is arp poisened
+to display arp tables in victim vm
+```bash
+ip neigh show
+```
+you should see the gateway ip and 
+
 ---
 
 ## How It Works
